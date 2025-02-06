@@ -1,6 +1,11 @@
 # ComfyUI SiliconFlow Node
 
-这是一个用于 ComfyUI 的自定义节点，可以调用 SiliconFlow API 进行文本生成。
+这是一个用于 ComfyUI 的自定义节点，可以调用 SiliconFlow API 使用deepseek 魔法化提示词  支持给deepseek添加人设
+![709dcaf05269fdbd44364c6a87ccf27](https://github.com/user-attachments/assets/6b5782d0-e17f-44bd-aaea-1932d50132aa)
+
+硅基流动免费api_key申请链接
+https://cloud.siliconflow.cn/i/o9sYCl8W
+
 
 ## 功能特点
 
