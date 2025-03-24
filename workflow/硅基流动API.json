@@ -1,0 +1,591 @@
+{
+  "last_node_id": 9,
+  "last_link_id": 7,
+  "nodes": [
+    {
+      "id": 1,
+      "type": "Text to String",
+      "pos": [
+        -3480.1025390625,
+        -1440.3651123046875
+      ],
+      "size": [
+        210,
+        58
+      ],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "text",
+          "label": "文本",
+          "type": "STRING",
+          "widget": {
+            "name": "text"
+          },
+          "link": 1
+        }
+      ],
+      "outputs": [
+        {
+          "name": "STRING",
+          "label": "字符串",
+          "type": "STRING",
+          "links": [
+            5
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "cnr_id": "was-node-suite-comfyui",
+        "ver": "9ae952b1b435d2bd846bfe6516919b5a8b9201aa",
+        "Node name for S&R": "Text to String"
+      },
+      "widgets_values": [
+        ""
+      ]
+    },
+    {
+      "id": 2,
+      "type": "VHS_VideoCombine",
+      "pos": [
+        -2674.290771484375,
+        -1484.646240234375
+      ],
+      "size": [
+        256.6491394042969,
+        388.0732421875
+      ],
+      "flags": {},
+      "order": 7,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "label": "图像",
+          "type": "IMAGE",
+          "link": 2
+        },
+        {
+          "name": "audio",
+          "label": "音频",
+          "type": "AUDIO",
+          "shape": 7,
+          "link": null
+        },
+        {
+          "name": "meta_batch",
+          "label": "批次管理",
+          "type": "VHS_BatchManager",
+          "shape": 7,
+          "link": null
+        },
+        {
+          "name": "vae",
+          "type": "VAE",
+          "shape": 7,
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "Filenames",
+          "label": "文件名",
+          "type": "VHS_FILENAMES",
+          "links": null
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfyui-videohelpersuite",
+        "ver": "5e61bcf218fe3bb7c899bbd584bbc99a9d05fb42",
+        "Node name for S&R": "VHS_VideoCombine"
+      },
+      "widgets_values": {
+        "frame_rate": 30,
+        "loop_count": 0,
+        "filename_prefix": "wan/硅基-api",
+        "format": "video/h264-mp4.json",
+        "pingpong": false,
+        "save_output": true,
+        "videopreview": {
+          "hidden": false,
+          "paused": false,
+          "params": {
+            "filename": "硅基-api_00001.mp4",
+            "subfolder": "wan",
+            "type": "output",
+            "format": "video/h264-mp4.json",
+            "frame_rate": 30,
+            "workflow": "硅基-api_00001.png",
+            "fullpath": "I:\\ComfyUI_windows_portable\\ComfyUI\\output\\wan\\硅基-api_00001.mp4"
+          }
+        }
+      }
+    },
+    {
+      "id": 3,
+      "type": "SiliconFlowVideoNode",
+      "pos": [
+        -3907.73388671875,
+        -1436.972412109375
+      ],
+      "size": [
+        400,
+        262
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "label": "image",
+          "type": "IMAGE",
+          "shape": 7,
+          "link": 3
+        }
+      ],
+      "outputs": [
+        {
+          "name": "STRING",
+          "label": "STRING",
+          "type": "STRING",
+          "links": [
+            1,
+            4
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "aux_id": "penposs/Comfyui_SiliconFlow2U",
+        "ver": "9d817a980b35f176f358d9760712ae6c2ca32be6",
+        "Node name for S&R": "SiliconFlowVideoNode"
+      },
+      "widgets_values": [
+        "",
+        "Wan-AI/Wan2.1-I2V-14B-720P-Turbo",
+        "1280x720",
+        1725733707,
+        "randomize",
+        "",
+        ""
+      ]
+    },
+    {
+      "id": 4,
+      "type": "easy showAnything",
+      "pos": [
+        -3477.95068359375,
+        -1300.92529296875
+      ],
+      "size": [
+        210,
+        160.1472625732422
+      ],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "anything",
+          "label": "输入任何",
+          "type": "*",
+          "shape": 7,
+          "link": 4
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "type": "*",
+          "links": null
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfyui-easy-use",
+        "ver": "3e84b8cd77719341adc71b08b5789bdb07b1a543",
+        "Node name for S&R": "easy showAnything"
+      },
+      "widgets_values": [
+        "https://sc-maas.oss-cn-shanghai.aliyuncs.com/outputs/b91436cd-6054-473b-a0c3-7a88a7d73005.mp4?OSSAccessKeyId=LTAI5tQnPSzwAnR8NmMzoQq4&Expires=1742900043&Signature=vzep8Nd%2BWsdIL%2BskPnCYwaUKXLY%3D"
+      ]
+    },
+    {
+      "id": 5,
+      "type": "VHS_LoadVideoPath",
+      "pos": [
+        -3231.56298828125,
+        -1450.5506591796875
+      ],
+      "size": [
+        292.6446228027344,
+        286
+      ],
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "meta_batch",
+          "label": "批次管理",
+          "type": "VHS_BatchManager",
+          "shape": 7,
+          "link": null
+        },
+        {
+          "name": "vae",
+          "type": "VAE",
+          "shape": 7,
+          "link": null
+        },
+        {
+          "name": "video",
+          "label": "视频",
+          "type": "STRING",
+          "widget": {
+            "name": "video"
+          },
+          "link": 5
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "label": "图像",
+          "type": "IMAGE",
+          "links": [
+            2
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "frame_count",
+          "label": "帧计数",
+          "type": "INT",
+          "links": [],
+          "slot_index": 1
+        },
+        {
+          "name": "audio",
+          "label": "音频",
+          "type": "AUDIO",
+          "links": null
+        },
+        {
+          "name": "video_info",
+          "label": "视频信息",
+          "type": "VHS_VIDEOINFO",
+          "links": [
+            6
+          ],
+          "slot_index": 3
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfyui-videohelpersuite",
+        "ver": "5e61bcf218fe3bb7c899bbd584bbc99a9d05fb42",
+        "Node name for S&R": "VHS_LoadVideoPath"
+      },
+      "widgets_values": {
+        "video": "",
+        "force_rate": 0,
+        "custom_width": 0,
+        "custom_height": 0,
+        "frame_load_cap": 0,
+        "skip_first_frames": 0,
+        "select_every_nth": 1,
+        "format": "Wan",
+        "videopreview": {
+          "hidden": false,
+          "paused": false,
+          "params": {
+            "filename": "",
+            "type": "path",
+            "format": "video/",
+            "force_rate": 0,
+            "custom_width": 0,
+            "custom_height": 0,
+            "frame_load_cap": 0,
+            "skip_first_frames": 0,
+            "select_every_nth": 1
+          }
+        }
+      }
+    },
+    {
+      "id": 6,
+      "type": "easy showAnything",
+      "pos": [
+        -2910.6376953125,
+        -1344.3267822265625
+      ],
+      "size": [
+        210,
+        76
+      ],
+      "flags": {},
+      "order": 8,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "anything",
+          "label": "输入任何",
+          "type": "*",
+          "shape": 7,
+          "link": 6
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "type": "*",
+          "links": null
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfyui-easy-use",
+        "ver": "3e84b8cd77719341adc71b08b5789bdb07b1a543",
+        "Node name for S&R": "easy showAnything"
+      },
+      "widgets_values": [
+        "81"
+      ]
+    },
+    {
+      "id": 7,
+      "type": "Image Load",
+      "pos": [
+        -4256.05810546875,
+        -1423.29638671875
+      ],
+      "size": [
+        315,
+        146
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "image",
+          "label": "图像",
+          "type": "IMAGE",
+          "links": [
+            3
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "mask",
+          "label": "遮罩",
+          "type": "MASK",
+          "links": null
+        },
+        {
+          "name": "filename_text",
+          "label": "文件名",
+          "type": "STRING",
+          "links": null
+        }
+      ],
+      "properties": {
+        "cnr_id": "was-node-suite-comfyui",
+        "ver": "9ae952b1b435d2bd846bfe6516919b5a8b9201aa",
+        "Node name for S&R": "Image Load"
+      },
+      "widgets_values": [
+        "",
+        "true",
+        "true"
+      ]
+    },
+    {
+      "id": 8,
+      "type": "SiliconFlowNode",
+      "pos": [
+        -4044.44580078125,
+        -935.4298095703125
+      ],
+      "size": [
+        400,
+        310
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "STRING",
+          "label": "STRING",
+          "type": "STRING",
+          "links": [
+            7
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "aux_id": "penposs/Comfyui_SiliconFlow2U",
+        "ver": "9d817a980b35f176f358d9760712ae6c2ca32be6",
+        "Node name for S&R": "SiliconFlowNode"
+      },
+      "widgets_values": [
+        "",
+        "deepseek-ai/DeepSeek-R1",
+        512,
+        0.7,
+        0.7,
+        50,
+        0.5,
+        "",
+        ""
+      ]
+    },
+    {
+      "id": 9,
+      "type": "easy showAnything",
+      "pos": [
+        -3599.418701171875,
+        -888.3236083984375
+      ],
+      "size": [
+        210,
+        160.1472625732422
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "anything",
+          "label": "输入任何",
+          "type": "*",
+          "shape": 7,
+          "link": 7
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "type": "*",
+          "links": null
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfyui-easy-use",
+        "ver": "3e84b8cd77719341adc71b08b5789bdb07b1a543",
+        "Node name for S&R": "easy showAnything"
+      },
+      "widgets_values": [
+        "https://sc-maas.oss-cn-shanghai.aliyuncs.com/outputs/b91436cd-6054-473b-a0c3-7a88a7d73005.mp4?OSSAccessKeyId=LTAI5tQnPSzwAnR8NmMzoQq4&Expires=1742900043&Signature=vzep8Nd%2BWsdIL%2BskPnCYwaUKXLY%3D"
+      ]
+    }
+  ],
+  "links": [
+    [
+      1,
+      3,
+      0,
+      1,
+      0,
+      "STRING"
+    ],
+    [
+      2,
+      5,
+      0,
+      2,
+      0,
+      "IMAGE"
+    ],
+    [
+      3,
+      7,
+      0,
+      3,
+      0,
+      "IMAGE"
+    ],
+    [
+      4,
+      3,
+      0,
+      4,
+      0,
+      "*"
+    ],
+    [
+      5,
+      1,
+      0,
+      5,
+      2,
+      "STRING"
+    ],
+    [
+      6,
+      5,
+      3,
+      6,
+      0,
+      "*"
+    ],
+    [
+      7,
+      8,
+      0,
+      9,
+      0,
+      "*"
+    ]
+  ],
+  "groups": [
+    {
+      "id": 1,
+      "title": "视频生成",
+      "bounding": [
+        -4241.2509765625,
+        -1545.6507568359375,
+        1758.035400390625,
+        440.1900939941406
+      ],
+      "color": "#3f789e",
+      "font_size": 24,
+      "flags": {}
+    },
+    {
+      "id": 2,
+      "title": "Group",
+      "bounding": [
+        -4054.44580078125,
+        -1009.0297241210938,
+        675.027099609375,
+        393.6000061035156
+      ],
+      "color": "#3f789e",
+      "font_size": 24,
+      "flags": {}
+    }
+  ],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 0.5054470284992946,
+      "offset": [
+        5158.464260532705,
+        1775.6121553336625
+      ]
+    },
+    "ue_links": [],
+    "VHS_latentpreview": false,
+    "VHS_latentpreviewrate": 0,
+    "VHS_MetadataImage": true,
+    "VHS_KeepIntermediate": true
+  },
+  "version": 0.4
+}
