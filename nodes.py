@@ -30,6 +30,7 @@ class SiliconFlowNode:
             },
             "optional": {
                 "system_prompt": ("STRING", {"default": "", "multiline": True}),
+                "image": ("IMAGE", {}),
                 "new_api_key": ("STRING", {"default": "", "multiline": False}),
             }
         }
@@ -39,7 +40,7 @@ class SiliconFlowNode:
     CATEGORY = "SiliconFlow"
 
     def generate(self, prompt, model, max_tokens=512, temperature=0.7, top_p=0.7, 
-                top_k=50, frequency_penalty=0.5, system_prompt="", new_api_key=""):
+                top_k=50, frequency_penalty=0.5, system_prompt="", image=None, new_api_key=""):
         try:
             if new_api_key.strip():
                 self.config.set_api_key(new_api_key.strip())
@@ -53,10 +54,66 @@ class SiliconFlowNode:
                 "Content-Type": "application/json"
             }
 
+            # 预处理图像（若提供）并转为 data:image/png;base64
+            image_data_url = None
+            if image is not None:
+                try:
+                    img = None
+                    if isinstance(image, torch.Tensor):
+                        img = image.detach().cpu().numpy()
+                        if len(img.shape) == 4:
+                            img = img.squeeze(0)
+                        # 如果是 CHW，则转为 HWC
+                        if img.shape[0] in (1, 3, 4):
+                            if img.shape[0] == 1:
+                                img = np.repeat(img, 3, axis=0)
+                            elif img.shape[0] == 4:
+                                img = img[:3]
+                            img = img.transpose(1, 2, 0)
+                        if img.max() <= 1.0:
+                            img = (img * 255).astype('uint8')
+                        else:
+                            img = img.astype('uint8')
+                    elif isinstance(image, np.ndarray):
+                        img = image
+                        if len(img.shape) == 2:
+                            img = np.stack([img] * 3, axis=2)
+                        elif len(img.shape) == 3:
+                            if img.shape[2] == 1:
+                                img = np.repeat(img, 3, axis=2)
+                            elif img.shape[2] == 4:
+                                img = img[..., :3]
+                        if img.max() <= 1.0:
+                            img = (img * 255).astype('uint8')
+                        else:
+                            img = img.astype('uint8')
+                    elif isinstance(image, Image.Image):
+                        img = np.array(image.convert("RGB"), dtype=np.uint8)
+                    
+                    if img is not None:
+                        pil_img = Image.fromarray(img)
+                        png_buffer = BytesIO()
+                        pil_img.save(png_buffer, format="PNG")
+                        png_bytes = png_buffer.getvalue()
+                        base64_image = base64.b64encode(png_bytes).decode('utf-8')
+                        image_data_url = f"data:image/png;base64,{base64_image}"
+                        print("[硅基流动2U] 已附带图像输入（PNG Base64）")
+                except Exception as e:
+                    print(f"[硅基流动2U] 警告: 图像处理失败，将仅发送文本。原因: {str(e)}")
+                    image_data_url = None
+
             messages = []
             if system_prompt:
                 messages.append({"role": "system", "content": system_prompt})
-            messages.append({"role": "user", "content": prompt})
+
+            if image_data_url:
+                content_parts = []
+                if prompt:
+                    content_parts.append({"type": "text", "text": prompt})
+                content_parts.append({"type": "image_url", "image_url": {"url": image_data_url}})
+                messages.append({"role": "user", "content": content_parts})
+            else:
+                messages.append({"role": "user", "content": prompt})
 
             payload = {
                 "model": model,
@@ -132,9 +189,7 @@ class SiliconFlowVideoNode:
         return {
             "required": {
                 "prompt": ("STRING", {"default": "", "multiline": True}),
-                "model": (["Wan-AI/Wan2.1-T2V-14B", "Wan-AI/Wan2.1-T2V-14B-Turbo", 
-                          "Wan-AI/Wan2.1-I2V-14B-720P", "Wan-AI/Wan2.1-I2V-14B-720P-Turbo",
-                          "tencent/HunyuanVideo"],),
+                "model": (config.get_video_models(),),
                 "image_size": (["1280x720", "720x1280", "960x960"],),
                 "seed": ("INT", {"default": 0, "min": 0, "max": 2147483647}),
             },
@@ -483,4 +538,4 @@ class SiliconFlowUploadNode:
                 
         except Exception as e:
             print(f"[硅基流动2U] 错误: {str(e)}")
-            return (f"错误: {str(e)}",) 
+            return (f"错误: {str(e)}",)

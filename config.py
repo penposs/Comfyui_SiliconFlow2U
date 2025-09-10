@@ -1,5 +1,12 @@
 import os
 import json
+# 可选依赖：requests 不存在时回退到 urllib
+try:
+    import requests  # type: ignore
+except Exception:  # noqa: F401
+    requests = None  # type: ignore
+import urllib.request
+import urllib.error
 
 class Config:
     API_BASE = "https://api.siliconflow.cn/v1/chat/completions"  # 只在这里定义一次
@@ -54,12 +61,30 @@ class Config:
         "Pro/meta-llama/Meta-Llama-3.1-8B-Instruct",
         "Pro/google/gemma-2-9b-it"
     ]
+    # 视频模型的回退列表（当在线拉取失败时使用）
+    VIDEO_MODELS = [
+        "Wan-AI/Wan2.1-T2V-14B",
+        "Wan-AI/Wan2.1-T2V-14B-Turbo",
+        "Wan-AI/Wan2.1-I2V-14B-720P",
+        "Wan-AI/Wan2.1-I2V-14B-720P-Turbo",
+        "tencent/HunyuanVideo"
+    ]
 
     def __new__(cls):
         if cls._instance is None:
             cls._instance = super(Config, cls).__new__(cls)
             cls._instance.config_path = os.path.join(os.path.dirname(__file__), "config.json")
             cls._instance.config = cls._instance.load_config()
+            # 启动时尝试从官方接口刷新模型列表（失败则静默回退到静态列表）
+            try:
+                cls._instance.refresh_models_from_api()
+            except Exception:
+                pass
+            # 同步刷新视频模型列表
+            try:
+                cls._instance.refresh_video_models_from_api()
+            except Exception:
+                pass
         return cls._instance
 
     def load_config(self):
@@ -92,10 +117,130 @@ class Config:
     def get_api_base(self):
         return self.API_BASE
 
+    def refresh_models_from_api(self):
+        """从官方接口拉取模型列表并更新到 MODELS。失败则保持原配置。"""
+        url = "https://api.siliconflow.cn/v1/models"
+        headers = {}
+        api_key = self.get_api_key()
+        if api_key:
+            headers["Authorization"] = f"Bearer {api_key}"
+        try:
+            data = None
+            # 优先使用 requests
+            if requests is not None:
+                try:
+                    resp = requests.get(url, headers=headers, timeout=15)
+                    if resp.status_code == 200:
+                        data = resp.json()
+                except Exception:
+                    data = None
+            # 回退到 urllib
+            if data is None:
+                req = urllib.request.Request(url, headers=headers, method="GET")
+                with urllib.request.urlopen(req, timeout=15) as r:
+                    raw = r.read().decode("utf-8", errors="ignore")
+                    data = json.loads(raw)
+            model_ids = []
+            # 兼容常见返回结构：{"data":[{"id":"model"}, ...]}
+            if isinstance(data, dict):
+                items = data.get("data") or data.get("models")
+                if isinstance(items, list):
+                    for item in items:
+                        if isinstance(item, dict):
+                            mid = item.get("id") or item.get("name")
+                            if isinstance(mid, str):
+                                model_ids.append(mid)
+                        elif isinstance(item, str):
+                            model_ids.append(item)
+            elif isinstance(data, list):
+                for item in data:
+                    if isinstance(item, dict):
+                        mid = item.get("id") or item.get("name")
+                        if isinstance(mid, str):
+                            model_ids.append(mid)
+                    elif isinstance(item, str):
+                        model_ids.append(item)
+            # 去重并更新
+            if model_ids:
+                seen = set()
+                cleaned = []
+                for m in model_ids:
+                    if m not in seen:
+                        seen.add(m)
+                        cleaned.append(m)
+                type(self).MODELS = cleaned
+                print(f"[硅基流动2U] 已从官方接口刷新模型列表，共 {len(cleaned)} 个")
+                return True
+        except Exception:
+            return False
+        return False
+
     def get_models(self):
         return self.MODELS
+
+    # 新增：拉取视频模型列表
+    def refresh_video_models_from_api(self):
+        """仅拉取视频类模型（type=video），成功时更新到 VIDEO_MODELS。"""
+        url = "https://api.siliconflow.cn/v1/models?type=video"
+        headers = {}
+        api_key = self.get_api_key()
+        if api_key:
+            headers["Authorization"] = f"Bearer {api_key}"
+        try:
+            data = None
+            if requests is not None:
+                try:
+                    resp = requests.get(url, headers=headers, timeout=15)
+                    if resp.status_code == 200:
+                        data = resp.json()
+                except Exception:
+                    data = None
+            if data is None:
+                req = urllib.request.Request(url, headers=headers, method="GET")
+                with urllib.request.urlopen(req, timeout=15) as r:
+                    raw = r.read().decode("utf-8", errors="ignore")
+                    data = json.loads(raw)
+            model_ids = []
+            if isinstance(data, dict):
+                items = data.get("data") or data.get("models")
+                if isinstance(items, list):
+                    for item in items:
+                        if isinstance(item, dict):
+                            mid = item.get("id") or item.get("name")
+                            if isinstance(mid, str):
+                                model_ids.append(mid)
+                        elif isinstance(item, str):
+                            model_ids.append(item)
+            elif isinstance(data, list):
+                for item in data:
+                    if isinstance(item, dict):
+                        mid = item.get("id") or item.get("name")
+                        if isinstance(mid, str):
+                            model_ids.append(mid)
+                    elif isinstance(item, str):
+                        model_ids.append(item)
+            if model_ids:
+                seen = set()
+                cleaned = []
+                for m in model_ids:
+                    if m not in seen:
+                        seen.add(m)
+                        cleaned.append(m)
+                type(self).VIDEO_MODELS = cleaned
+                print(f"[硅基流动2U] 已从官方接口刷新视频模型列表，共 {len(cleaned)} 个")
+                return True
+        except Exception:
+            return False
+        return False
+
+    def get_models(self):
+        return self.MODELS
+
+    # 新增：获取视频模型列表
+    def get_video_models(self):
+        return self.VIDEO_MODELS
 
     def set_api_key(self, api_key):
         if api_key and api_key != self.config.get("api_key", ""):
             self.config["api_key"] = api_key
-            self.save_config() 
+            self.save_config()
