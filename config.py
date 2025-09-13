@@ -70,6 +70,18 @@ class Config:
         "tencent/HunyuanVideo"
     ]
 
+    # 新增：视觉多模态模型的静态回退列表（当在线拉取失败时使用）
+    VISION_MODELS = [
+        "THUDM/glm-4v-9b",
+        "zai-org/GLM-4.5V",
+        "Qwen/Qwen2-VL-7B-Instruct",
+        "Qwen/Qwen2.5-VL-7B-Instruct",
+        "Qwen/Qwen2.5-VL-32B-Instruct",
+        "Qwen/Qwen2.5-VL-72B-Instruct",
+        "deepseek-ai/DeepSeek-VL2",
+        "deepseek-ai/DeepSeek-VL2-Turbo",
+    ]
+
     def __new__(cls):
         if cls._instance is None:
             cls._instance = super(Config, cls).__new__(cls)
@@ -239,6 +251,14 @@ class Config:
     # 新增：获取视频模型列表
     def get_video_models(self):
         return self.VIDEO_MODELS
+
+    # 新增：获取视觉多模态模型列表
+    def get_vision_models(self):
+        return self.VISION_MODELS
+
+    # 新增：获取全部模型（文本 + 视觉），去重并保持顺序
+    def get_all_models(self):
+        return list(dict.fromkeys(list(self.MODELS) + list(self.VISION_MODELS)))
 
     def set_api_key(self, api_key):
         if api_key and api_key != self.config.get("api_key", ""):
