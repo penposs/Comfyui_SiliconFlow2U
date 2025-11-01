@@ -565,11 +565,69 @@ class SiliconFlowRefreshModelsNode:
         print("[硅基流动2U] 手动触发模型刷新...")
         ok_text = self.config.refresh_models_from_api()
         ok_video = self.config.refresh_video_models_from_api()
-        text_count = len(self.config.get_all_models())
-        video_count = len(self.config.get_video_models())
+        
+        text_models = self.config.get_all_models()
+        video_models = self.config.get_video_models()
+        text_count = len(text_models)
+        video_count = len(video_models)
+        
+        # 打印模型列表到控制台
+        print(f"\n[硅基流动2U] ========== 当前文本/多模态模型列表 ({text_count} 个) ==========")
+        for i, model in enumerate(text_models, 1):
+            print(f"[硅基流动2U] {i}. {model}")
+        
+        print(f"\n[硅基流动2U] ========== 当前视频模型列表 ({video_count} 个) ==========")
+        for i, model in enumerate(video_models, 1):
+            print(f"[硅基流动2U] {i}. {model}")
+        print("[硅基流动2U] ============================================\n")
+        
         msg_parts = []
         msg_parts.append(f"文本/多模态: {'成功' if ok_text else '失败'} ({text_count} 个)")
         msg_parts.append(f"视频: {'成功' if ok_video else '失败'} ({video_count} 个)")
         result = "；".join(msg_parts)
         print(f"[硅基流动2U] 刷新结果: {result}")
+        return (result,)
+
+
+class SiliconFlowListModelsNode:
+    def __init__(self):
+        self.config = Config()
+
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {
+            "required": {},
+        }
+
+    RETURN_TYPES = ("STRING",)
+    FUNCTION = "list_models"
+    CATEGORY = "SiliconFlow"
+
+    def list_models(self):
+        text_models = self.config.get_all_models()
+        video_models = self.config.get_video_models()
+        text_count = len(text_models)
+        video_count = len(video_models)
+        
+        result_lines = []
+        result_lines.append("========== 文本/多模态模型列表 ==========")
+        result_lines.append(f"共 {text_count} 个模型：")
+        result_lines.append("")
+        for i, model in enumerate(text_models, 1):
+            result_lines.append(f"{i}. {model}")
+        
+        result_lines.append("")
+        result_lines.append("========== 视频模型列表 ==========")
+        result_lines.append(f"共 {video_count} 个模型：")
+        result_lines.append("")
+        for i, model in enumerate(video_models, 1):
+            result_lines.append(f"{i}. {model}")
+        
+        result = "\n".join(result_lines)
+        
+        # 同时打印到控制台
+        print("[硅基流动2U] ========== 查看模型列表 ==========")
+        print(result)
+        print("[硅基流动2U] ====================================")
+        
         return (result,)

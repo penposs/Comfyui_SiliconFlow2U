@@ -1,5 +1,6 @@
 import os
 import json
+import time
 # 可选依赖：requests 不存在时回退到 urllib
 try:
     import requests  # type: ignore
@@ -86,23 +87,27 @@ class Config:
         if cls._instance is None:
             cls._instance = super(Config, cls).__new__(cls)
             cls._instance.config_path = os.path.join(os.path.dirname(__file__), "config.json")
+            cls._instance.models_cache_path = os.path.join(os.path.dirname(__file__), "models_cache.json")
             cls._instance.config = cls._instance.load_config()
-            # 启动时尝试从官方接口刷新模型列表（失败则静默回退到静态列表）
+            # 启动时先尝试从缓存文件加载模型列表
+            if cls._instance.load_models_from_cache():
+                print("[硅基流动2U] 已从本地缓存文件加载模型列表")
+            # 然后尝试从官方接口刷新模型列表（失败则保持缓存或静态列表）
             try:
                 print("[硅基流动2U] 正在尝试刷新文本/多模态模型列表...")
                 ok = cls._instance.refresh_models_from_api()
                 if not ok:
-                    print("[硅基流动2U] 刷新文本/多模态模型列表失败，已使用内置静态列表")
+                    print("[硅基流动2U] 刷新文本/多模态模型列表失败，使用已缓存的模型列表")
             except Exception as e:
-                print(f"[硅基流动2U] 刷新文本/多模态模型时异常: {str(e)}，已使用内置静态列表")
+                print(f"[硅基流动2U] 刷新文本/多模态模型时异常: {str(e)}，使用已缓存的模型列表")
             # 同步刷新视频模型列表
             try:
                 print("[硅基流动2U] 正在尝试刷新视频模型列表...")
                 okv = cls._instance.refresh_video_models_from_api()
                 if not okv:
-                    print("[硅基流动2U] 刷新视频模型列表失败，已使用内置静态列表")
+                    print("[硅基流动2U] 刷新视频模型列表失败，使用已缓存的模型列表")
             except Exception as e:
-                print(f"[硅基流动2U] 刷新视频模型时异常: {str(e)}，已使用内置静态列表")
+                print(f"[硅基流动2U] 刷新视频模型时异常: {str(e)}，使用已缓存的模型列表")
         return cls._instance
 
     def load_config(self):
@@ -187,7 +192,10 @@ class Config:
                         seen.add(m)
                         cleaned.append(m)
                 type(self).MODELS = cleaned
+                # 保存到缓存文件
+                self.save_models_to_cache()
                 print(f"[硅基流动2U] 已从官方接口刷新模型列表，共 {len(cleaned)} 个")
+                print(f"[硅基流动2U] 模型列表已保存到: {self.models_cache_path}")
                 return True
         except Exception as e:
             print(f"[硅基流动2U] 刷新文本/多模态模型失败: {str(e)}")
@@ -246,7 +254,10 @@ class Config:
                         seen.add(m)
                         cleaned.append(m)
                 type(self).VIDEO_MODELS = cleaned
+                # 保存到缓存文件
+                self.save_models_to_cache()
                 print(f"[硅基流动2U] 已从官方接口刷新视频模型列表，共 {len(cleaned)} 个")
+                print(f"[硅基流动2U] 模型列表已保存到: {self.models_cache_path}")
                 return True
         except Exception as e:
             print(f"[硅基流动2U] 刷新视频模型失败: {str(e)}")
@@ -272,3 +283,43 @@ class Config:
         if api_key and api_key != self.config.get("api_key", ""):
             self.config["api_key"] = api_key
             self.save_config()
+
+    def save_models_to_cache(self):
+        """将当前模型列表保存到缓存文件"""
+        try:
+            cache_data = {
+                "text_models": self.MODELS,
+                "video_models": self.VIDEO_MODELS,
+                "vision_models": self.VISION_MODELS,
+                "last_update": time.time()
+            }
+            with open(self.models_cache_path, 'w', encoding='utf-8') as f:
+                json.dump(cache_data, f, indent=4, ensure_ascii=False)
+            return True
+        except Exception as e:
+            print(f"[硅基流动2U] 保存模型缓存失败: {str(e)}")
+            return False
+
+    def load_models_from_cache(self):
+        """从缓存文件加载模型列表"""
+        if not os.path.exists(self.models_cache_path):
+            return False
+        try:
+            with open(self.models_cache_path, 'r', encoding='utf-8') as f:
+                cache_data = json.load(f)
+            if isinstance(cache_data, dict):
+                if "text_models" in cache_data and isinstance(cache_data["text_models"], list):
+                    type(self).MODELS = cache_data["text_models"]
+                if "video_models" in cache_data and isinstance(cache_data["video_models"], list):
+                    type(self).VIDEO_MODELS = cache_data["video_models"]
+                if "vision_models" in cache_data and isinstance(cache_data["vision_models"], list):
+                    type(self).VISION_MODELS = cache_data["vision_models"]
+                if "last_update" in cache_data:
+                    last_update = cache_data.get("last_update", 0)
+                    update_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(last_update))
+                    print(f"[硅基流动2U] 缓存文件最后更新: {update_time}")
+                return True
+        except Exception as e:
+            print(f"[硅基流动2U] 加载模型缓存失败: {str(e)}")
+            return False
+        return False
