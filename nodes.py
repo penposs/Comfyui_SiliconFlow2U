@@ -540,3 +540,36 @@ class SiliconFlowUploadNode:
         except Exception as e:
             print(f"[硅基流动2U] 错误: {str(e)}")
             return (f"错误: {str(e)}",)
+
+
+class SiliconFlowRefreshModelsNode:
+    def __init__(self):
+        self.config = Config()
+
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {
+            "required": {},
+            "optional": {
+                "new_api_key": ("STRING", {"default": "", "multiline": False}),
+            }
+        }
+
+    RETURN_TYPES = ("STRING",)
+    FUNCTION = "refresh"
+    CATEGORY = "SiliconFlow"
+
+    def refresh(self, new_api_key=""):
+        if new_api_key.strip():
+            self.config.set_api_key(new_api_key.strip())
+        print("[硅基流动2U] 手动触发模型刷新...")
+        ok_text = self.config.refresh_models_from_api()
+        ok_video = self.config.refresh_video_models_from_api()
+        text_count = len(self.config.get_all_models())
+        video_count = len(self.config.get_video_models())
+        msg_parts = []
+        msg_parts.append(f"文本/多模态: {'成功' if ok_text else '失败'} ({text_count} 个)")
+        msg_parts.append(f"视频: {'成功' if ok_video else '失败'} ({video_count} 个)")
+        result = "；".join(msg_parts)
+        print(f"[硅基流动2U] 刷新结果: {result}")
+        return (result,)

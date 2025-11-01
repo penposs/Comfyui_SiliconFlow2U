@@ -89,14 +89,20 @@ class Config:
             cls._instance.config = cls._instance.load_config()
             # 启动时尝试从官方接口刷新模型列表（失败则静默回退到静态列表）
             try:
-                cls._instance.refresh_models_from_api()
-            except Exception:
-                pass
+                print("[硅基流动2U] 正在尝试刷新文本/多模态模型列表...")
+                ok = cls._instance.refresh_models_from_api()
+                if not ok:
+                    print("[硅基流动2U] 刷新文本/多模态模型列表失败，已使用内置静态列表")
+            except Exception as e:
+                print(f"[硅基流动2U] 刷新文本/多模态模型时异常: {str(e)}，已使用内置静态列表")
             # 同步刷新视频模型列表
             try:
-                cls._instance.refresh_video_models_from_api()
-            except Exception:
-                pass
+                print("[硅基流动2U] 正在尝试刷新视频模型列表...")
+                okv = cls._instance.refresh_video_models_from_api()
+                if not okv:
+                    print("[硅基流动2U] 刷新视频模型列表失败，已使用内置静态列表")
+            except Exception as e:
+                print(f"[硅基流动2U] 刷新视频模型时异常: {str(e)}，已使用内置静态列表")
         return cls._instance
 
     def load_config(self):
@@ -183,7 +189,8 @@ class Config:
                 type(self).MODELS = cleaned
                 print(f"[硅基流动2U] 已从官方接口刷新模型列表，共 {len(cleaned)} 个")
                 return True
-        except Exception:
+        except Exception as e:
+            print(f"[硅基流动2U] 刷新文本/多模态模型失败: {str(e)}")
             return False
         return False
 
@@ -241,7 +248,8 @@ class Config:
                 type(self).VIDEO_MODELS = cleaned
                 print(f"[硅基流动2U] 已从官方接口刷新视频模型列表，共 {len(cleaned)} 个")
                 return True
-        except Exception:
+        except Exception as e:
+            print(f"[硅基流动2U] 刷新视频模型失败: {str(e)}")
             return False
         return False
 

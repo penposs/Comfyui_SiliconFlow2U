@@ -26,15 +26,21 @@
 
 1. 克隆仓库到 ComfyUI 的 custom_nodes 目录：
 
-bash
+```bash
 cd ComfyUI/custom_nodes
 git clone https://github.com/penposs/Comfyui_SiliconFlow2U.git
+```
 
-2. 安装依赖：
-bash
+2. 配置 API Key：
+   - 复制 `config.json.example` 为 `config.json`
+   - 在 `config.json` 中填入你的 API Key
+
+3. 安装依赖：
+```bash
 pip install -r requirements.txt
+```
 
-3. 重启 ComfyUI
+4. 重启 ComfyUI
 
 ## 🚀 使用方法
 
@@ -71,6 +77,15 @@ pip install -r requirements.txt
 - 图像会自动调整为所选的输出分辨率
 - 视频生成可能需要一些时间，请耐心等待
 - 生成完成后会返回视频的 URL 链接
+
+### 刷新模型列表
+
+项目支持自动从硅基流动官方 API 拉取最新的模型列表。如果自动刷新失败，可以使用 "硅基流动刷新模型列表" 节点手动触发刷新。
+
+## ⚙️ 配置说明
+
+- `config.json`: 配置文件，包含你的 API Key（此文件不会被提交到 Git）
+- `config.json.example`: 配置文件模板，你可以复制它为 `config.json` 并填入 API Key
 
 ## 📄 License
 
