@@ -5,7 +5,6 @@ __pycache__/
 
 # Config
 config.json
-models_cache.json
 
 # IDE
 .idea/
